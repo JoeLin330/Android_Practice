@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="INFO">
+        <EditTextPreference
+            android:key="KEY_NAME"
+            android:title="Name"
+            android:summary="Your name"
+            android:defaultValue=" " />
+
+        <ListPreference
+            android:key="KEEY_AMOUNT"
+            android:title="Amount"
+            android:summary="Amount"
+            android:entries="@array/amount_array"
+            android:entryValues="@array/amount_value_array"
+            android:defaultValue="0"/>
+
+        <MultiSelectListPreference
+            android:key="KEY_WEEKS"
+            android:title="Weeks"
+            android:summary="Select weeks"
+            android:entries="@array/weeks_array"
+            android:entryValues="@array/weeks_value_array"
+            android:defaultValue="@array/empty_array"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="STATUS">
+        <SwitchPreference
+            android:key="KEY_VIP"
+            android:title="VIP"
+            android:switchTextOn="Yes"
+            android:switchTextOff="No"
+            android:summaryOn="Yes, I am VIP"
+            android:summaryOff="No, I am not VIP"
+            android:defaultValue="false"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="ALARM">
+        <RingtonePreference
+            android:key="KEY_RINGTONE"
+            android:title="Ringtone"
+            android:summary="Select system ringtone"/>
+
+        <CheckBoxPreference
+            android:key="KEY_ALARM"
+            android:title="Alarm"
+            android:summary="Set alarm ON or OFF"
+            android:defaultValue="false"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>
