@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/linear"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/rectangle_drawable"
+    android:orientation="vertical">
+
+    <!-- 只有一個顯示項目資料的Fragment -->
+    <fragment
+        android:id="@+id/master_fragment"
+        class="com.example.joe.chapter13_02.MasterFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>
