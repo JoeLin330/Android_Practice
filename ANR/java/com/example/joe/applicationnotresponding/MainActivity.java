@@ -1,3 +1,6 @@
+// 在應用程式裡面自己建立的執行緒，不可以執行更新畫面元件內容的工作。
+
+
 package com.example.joe.applicationnotresponding;
 
 import android.os.Bundle;
