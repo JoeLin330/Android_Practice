@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AsyncTask01</string>
+    <string name="base_url">https://dl.dropboxusercontent.com/u/61562257/Ankarana2/images/</string>
+</resources>
