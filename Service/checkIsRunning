@@ -1,0 +1,23 @@
+//判斷參數指定的元件類別是否正在運作中
+    private boolean isRunning(Class target) {
+        boolean result = false;
+
+        //取得系統ActivityManager物件
+        ActivityManager am = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
+
+        //取得正在運作中的服務元件
+        List<ActivityManager.RunningServiceInfo> rs = am.getRunningServices(20);
+
+        //建立參數指定服務元件的ComponentName物件
+        ComponentName cn = new ComponentName(this, target);
+
+        //比對與判斷服務元件是否在運作中
+        for (ActivityManager.RunningServiceInfo rsi : rs) {
+            if (rsi.service.equals(cn)) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
