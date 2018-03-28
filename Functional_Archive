@@ -1,0 +1,56 @@
+//從參數指定的網址下載一個圖片並傳回Bitmap物件
+    private Bitmap loadBitmap(String URL) {
+        Bitmap bitmap = null;
+        InputStream in = null;
+
+        try {
+            //取得指定網址的InputStream物件
+            in = openHttpConnection(URL);
+            //從InputStream物件讀取圖片轉換為Bitmap物件
+            bitmap = BitmapFactory.decodeStream(in);
+            
+        } catch (IOException e) {
+            Log.d("Thread01Activity", e.toString());
+        }
+        finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException e) {
+                Log.d("Thread01Activity", e.toString());
+            }
+        }
+
+        return bitmap;
+    }
+   --------------------------------------------------------------------------------------
+   //取得參數指定網址的InputStream物件
+    private InputStream openHttpConnection(String strURL) throws IOException {
+
+        InputStream inputStream = null;
+        //建立參數指定網址的URL物件
+        URL url = new URL(strURL);
+        //建立參數指定網址的URLConnection物件
+        URLConnection conn = url.openConnection();
+
+        try {
+            //把URLConnection轉型為HttpURLConnection
+            HttpURLConnection httpConn = (HttpURLConnection) conn;
+            //設定為HTTP GET 請求方式
+            httpConn.setRequestMethod("GET");
+            //連線
+            httpConn.connect();
+
+            //如果連線成功
+            if (httpConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                //取得連線的InputStream物件
+                inputStream = httpConn.getInputStream();
+            }
+        } catch (Exception e) {
+            Log.d("Thread01Activity", e.toString());
+        }
+
+        return inputStream;
+    }
+   
