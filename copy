@@ -1,0 +1,276 @@
+public class ExerciseActivity extends Activity {
+
+    private ListView exercise_listview;
+
+    private Button exercise_plus_button;
+
+    private SimpleAdapter sa;
+
+    private List<HashMap<String, String>> items;
+
+    private Event event;
+    private EventDAO eventDAO;
+
+    private ArrayList<Integer> importantId;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_exercise);
+
+        eventDAO = new EventDAO(this);
+
+        Intent intent = getIntent();
+
+        importantId = intent.getIntegerArrayListExtra("importantId");
+
+        long[] id = new long[importantId.size()];
+
+        for (int i = 0; i < id.length; i++) {
+            id[i] = importantId.get(i);
+        }
+
+        processViews();
+        processControllers();
+
+        items = new ArrayList<>();
+
+        for (int i = 0; i < id.length; i++) {
+            event = eventDAO.get(id[i]);
+            setListView(event);
+        }
+
+        String[] keys = {"name", "days", "percent"};
+        int[] viewIds = {R.id.exercise_name_listview, R.id.exercise_days_listview,
+                R.id.exercise_percent_listview};
+        sa = new SimpleAdapter(this, items, R.layout.exercise_listview_place, keys, viewIds);
+
+        exercise_listview.setAdapter(sa);
+    }
+
+    private void processViews() {
+        exercise_listview = findViewById(R.id.exercise_listview);
+        exercise_plus_button = findViewById(R.id.exercise_plus_button);
+    }
+
+    private void setListView(Event event) {
+        HashMap<String, String> record = new HashMap<>();
+        record.put("name", event.getName());
+        record.put("days", event.getDays() + "-DAYS");
+        record.put("percent", event.getProgress() + "/10");
+        items.add(record);
+    }
+
+    private void processControllers() {
+        exercise_plus_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+    }
+}
+
+----------------------------------------------------------------------------------------------------
+public class InsertActivity extends Activity {
+
+    private TextView insert_title;
+    private ListView insert_listview;
+
+    private List<Event> items;
+    private EventAdapter ea;
+
+    private EventDAO eventDAO;
+
+    private String category;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_insert);
+
+        Intent intent = getIntent();
+        category = intent.getStringExtra("category");
+
+        processViews();
+        processControllers();
+
+        items = new ArrayList<>();
+
+        eventDAO = new EventDAO(this);
+
+        refresh();
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View view,
+                                    ContextMenu.ContextMenuInfo menuInfo) {
+
+        AdapterView.AdapterContextMenuInfo info =
+                (AdapterView.AdapterContextMenuInfo) menuInfo;
+
+        Event selected = eventDAO.get(items.get(info.position).getId());
+
+        menu.setHeaderTitle(selected.getName());
+
+        if (view == insert_listview) {
+            MenuInflater menuInflater = getMenuInflater();
+
+            menuInflater.inflate(R.menu.menu_insertactivity, menu);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info =
+                (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+
+        final Event selected = eventDAO.get(items.get(info.position).getId());
+
+        int id = item.getItemId();
+
+        switch(id) {
+            case R.id.update_menu:
+                Intent intentUpdate =
+                        new Intent(InsertActivity.this, Update.class);
+
+                intentUpdate.putExtra("id", selected.getId());
+                intentUpdate.putExtra("category", category);
+
+                startActivityForResult(intentUpdate, 0);
+                break;
+            case R.id.delete_menu:
+                AlertDialog.Builder d =
+                        new AlertDialog.Builder(this, R.style.Theme_AppCompat_Light_Dialog_Alert);
+
+                d.setTitle("刪除事件...").setMessage("確定刪除" + selected.getName() + "?");
+
+                d.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        eventDAO.delete(selected.getId());
+                        refresh();
+                    }
+                });
+
+                d.setNegativeButton(android.R.string.cancel, null);
+
+                d.show();
+                break;
+        }
+
+        return true;
+    }
+
+    private void processViews() {
+        insert_listview = findViewById(R.id.insert_listview);
+        insert_title = findViewById(R.id.insert_title);
+        insert_title.setText(category);
+
+        registerForContextMenu(insert_listview);
+    }
+
+    private void processControllers() {
+
+        insert_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+
+                int count = 0;
+
+                Event event = eventDAO.get(items.get(position).getId());
+
+                for (int i = 0; i < items.size(); i++) {
+                    if (items.get(i).getIsChecked() == 1) {
+                        count++;
+                    }
+                }
+
+                if (event.getIsChecked() == 1 || count < 3) {
+
+                    event.setIsChecked(event.getIsChecked() == 1 ? 0 : 1);
+
+                    eventDAO.update(event);
+
+                    ea.set(position, event);
+
+                } else {
+                    AlertDialog.Builder d = new AlertDialog.Builder(InsertActivity.this);
+
+                    d.setTitle("選擇錯誤")
+                            .setMessage("最多只能選擇3項!!!")
+                            .setCancelable(false);
+
+                    d.setPositiveButton(android.R.string.ok, null);
+
+                    d.show();
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {refresh();}
+    }
+
+    public void clickInsertButton(View view) {
+        int id = view.getId();
+
+        if (id == R.id.insert_back_button) {
+            finish();
+
+            return;
+        }
+
+        Intent intent = null;
+
+        ArrayList<Integer> importantId = new ArrayList<>();
+
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).getIsChecked() == 1) {
+
+                int integer = (int)items.get(i).getId();
+                importantId.add(integer);
+            }
+        }
+
+        switch (id) {
+            case R.id.insert_insert_button:
+                intent = new Intent(InsertActivity.this, Insert.class);
+                intent.putExtra("category", category);
+                break;
+
+            case R.id.insert_confirm_button:
+                intent = new Intent(InsertActivity.this, ExerciseActivity.class);
+                intent.putExtra("importantId", importantId);
+
+        }
+
+        startActivityForResult(intent, 0);
+    }
+
+    private void refresh() {
+
+        items = eventDAO.get(category);
+
+        ea = new EventAdapter(this, R.layout.select_listview_place, items);
+
+        insert_listview.setAdapter(ea);
+
+        /*Cursor cursor = eventDAO.getAllCursor(category);
+
+        SimpleCursorAdapter sca = new SimpleCursorAdapter(
+                this, R.layout.listview_place,
+                cursor, EventDAO.SHOW_COLUMNS, IDS,
+                CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+
+        insert_listview.setAdapter(sca);*/
+    }
+
+    @Override
+    protected void onDestroy() {
+        eventDAO.close();
+        super.onDestroy();
+    }
+}
